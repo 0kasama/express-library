@@ -21,7 +21,7 @@ export default class members {
 
     const existingEmail = await pool.query(checkEmail, [email]);
     if (existingEmail.rows[0].email_exists) {
-      throw new Error('Email already exists');
+      throw { name: 'Conflict', message: 'Email already exists' };
     }
 
     const createMember = `
@@ -43,6 +43,9 @@ export default class members {
     const offset = (page - 1) * limit;
     const queryParams = [member_id];
 
+    if (status && status !== 'BORROWED' && status !== 'RETURNED') {
+      throw { name: 'ValidationError', message: 'Invalid status' };
+    }
     if (count) {
       let countBorrows = `
         SELECT COUNT(*) AS total
@@ -55,8 +58,11 @@ export default class members {
         countBorrows += ` AND status = $2`;
         queryParams.push(status);
       }
+
       const result = await pool.query(countBorrows, queryParams);
       return result.rows[0].total;
+    } else if (count === false) {
+      throw { name: 'NotFound', message: 'Borrow history not found' };
     }
 
     let query = `
@@ -77,6 +83,11 @@ export default class members {
 
     queryParams.push(limit, offset);
     const result = await pool.query(query, queryParams);
+
+    if (result.rows.length === 0) {
+      throw { name: 'NotFound', message: 'Borrow history not found' };
+    }
+
     return result.rows;
   }
 }

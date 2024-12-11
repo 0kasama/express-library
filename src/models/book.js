@@ -48,6 +48,14 @@ export default class books {
 
     queryParams.push(limit, offset);
     const result = await pool.query(query, queryParams);
+
+    if (result.rows.length === 0) {
+      throw {
+        name: 'NotFound',
+        message: 'No books found',
+      };
+    }
+
     return result.rows;
   }
 

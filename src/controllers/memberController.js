@@ -1,24 +1,15 @@
 import * as member from '../services/memberService.js';
 
-export const getAllMembers = async (req, res) => {
-  try {
-    const result = await member.getAllMembers();
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-export const createMember = async (req, res) => {
+export const createMember = async (req, res, next) => {
   try {
     const result = await member.createMember(req.body);
     res.json(result);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-export const getBorrowsHistory = async (req, res) => {
+export const getBorrowsHistory = async (req, res, next) => {
   try {
     const params = {
       id: req.params.id,
@@ -29,6 +20,6 @@ export const getBorrowsHistory = async (req, res) => {
     const result = await member.getBorrowsHistory(params);
     res.json(result);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
