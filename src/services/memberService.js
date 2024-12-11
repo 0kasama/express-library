@@ -1,9 +1,10 @@
 import members from '../models/member.js';
+import { pagination } from '../libs/pagination.js';
 
 export const getAllMembers = async () => {
   try {
-    const result = await members.getAllMembers();
-    return result;
+    const data = await members.getAllMembers();
+    return data;
   } catch (error) {
     throw error;
   }
@@ -32,6 +33,36 @@ export const createMember = async (params) => {
       params.address
     );
     return newMember;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getBorrowsHistory = async (params) => {
+  try {
+    const { id, status, page, limit } = params;
+
+    const totalCount = await members.getBorrowsHistory(
+      id,
+      status,
+      page,
+      limit,
+      true
+    );
+
+    const borrowHistory = await members.getBorrowsHistory(
+      id,
+      status,
+      page,
+      limit
+    );
+
+    return pagination({
+      result: borrowHistory,
+      count: totalCount,
+      limit,
+      page,
+    });
   } catch (error) {
     throw error;
   }
